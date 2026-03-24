@@ -1,0 +1,1 @@
+Chrono is a lightweight and intuitive application designed to help management record working hours across specific projects. It provides a simple interface and a clear overview for managers to monitor project effort, productivity, and resource allocation.
