@@ -19,7 +19,7 @@ const Sidebar = () => {
         <div className="flex">
             <div className="relative w-20 md:w-60 bg-gray-800 p-4 text-white">
                 <div className="flex justify-between items-center p-4">
-                    <img src="/Untitled5.png" alt="Logo" className="h-15 w-48" />
+                    <img src="/logo.png" alt="Logo" className="h-15 w-48" />
                 </div>
 
                 <nav className="mt-4 flex flex-col justify-between">
