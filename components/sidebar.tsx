@@ -10,7 +10,7 @@ const menuItems = [
     { name: 'Employees', icon: IdCard, variant: "ghost", href: '/employees' },
     { name: 'Enterprise', icon: List, variant: "ghost", href: '/enterprise' },
     { name: 'Settings', icon: Settings, variant: "ghost", href: '/settings' },
-    { name: 'Logout', icon: LogOut, variant: "destructive", href: '/auth' },
+    { name: 'Logout', icon: LogOut, variant: "destructive", href: '/login' },
 ] as const
 
 const Sidebar = () => {

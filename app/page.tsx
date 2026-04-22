@@ -1,5 +1,7 @@
-const Page = () => {
-  return <p className="text-3xl text-indigo-500">Main Page Chrono by Denisa</p>
+export default function HomePage() {
+  return (
+    <div>
+      <h1>Auth Page</h1>
+    </div>
+  );
 }
-
-export default Page
