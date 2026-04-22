@@ -27,7 +27,7 @@ export default function LoginPage() {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    router.push('/employee')
+    router.push('/employee/page.tsx')
   } catch (error) {
     console.error('Login error:', error)
   }
