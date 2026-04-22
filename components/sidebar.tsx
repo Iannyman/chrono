@@ -7,9 +7,9 @@ import Link from 'next/link';
 
 const menuItems = [
     { name: 'Home', icon: House, variant: "ghost", href: '/' },
-    { name: 'Employees', icon: IdCard, variant: "ghost", href: '/employees' },
-    { name: 'Enterprise', icon: List, variant: "ghost", href: '/enterprise' },
-    { name: 'Settings', icon: Settings, variant: "ghost", href: '/settings' },
+    { name: 'Employees', icon: IdCard, variant: "ghost", href: '/employees/page.tsx' },
+    { name: 'Enterprise', icon: List, variant: "ghost", href: '/enterprise/page.tsx' },
+    { name: 'Settings', icon: Settings, variant: "ghost", href: '/settings/page.tsx' },
     { name: 'Logout', icon: LogOut, variant: "destructive", href: '/login' },
 ] as const
 
