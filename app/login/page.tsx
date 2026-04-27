@@ -1,37 +1,83 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { useEffect } from "react";
+import { toast } from "sonner"
 
+// User details
+interface AuthUser {
+  username: string;
+  displayName: string;
+  department: string;
+}
+
+// API response after authentication
+interface AuthResponse {
+  token: string;
+  expiresIn: string;
+  user: AuthUser;
+}
 
 export default function LoginPage() {
   const router = useRouter()
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-  event.preventDefault()
+  // Redirect user to root if is accessing login but it already has a valid token
+  useEffect(() => {
+    // Only runs on client
+    const token = localStorage.getItem("token");
 
-  const formData = new FormData(event.currentTarget)
-  const username = formData.get('username')
-  const password = formData.get('password')
-
-  try {
-    const response = await fetch('http://172.23.5.77:4000/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-      credentials: 'include',
-    })
-
-    const data = await response.text()
-    console.log('Server response:', data)
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+    if (token) {
+      router.replace("/");
     }
+  }, [router]);
 
-    router.push('/employee/page.tsx')
-  } catch (error) {
-    console.error('Login error:', error)
+
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const username = formData.get('username')
+    const password = formData.get('password')
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
+
+      // wrong credentials
+      if (response.status === 401) {
+        toast.warning('User or password incorrect!',{ position: "top-right" })
+        return;
+      }
+
+      // rate limit hit
+      if (response.status === 429) {
+        toast.warning('Too many login attempts. Please try again later.',{ position: "top-right" })
+        return;
+      }
+      
+      // unhandled error
+      if (!response.ok) {
+        console.error("Unexpected error:", response.status);
+        toast.error("Something went wrong. Please try again later.",{ position: "top-right" });
+        return;
+      }
+
+      // read response from api
+      const data : AuthResponse = await response.json();
+
+      // save token to local storage
+      localStorage.setItem("token", data.token);
+      
+      // Notify all components about the user login
+      window.dispatchEvent(new CustomEvent('user-authenticated', { detail: data.user }));
+      
+      router.push('/')
+    } catch (error) {
+      console.error('Login error:', error)
+    }
   }
-}
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900 w-full">
       <div className="w-full max-w-md bg-gray-800 rounded-xl shadow-md p-8">
@@ -42,6 +88,7 @@ export default function LoginPage() {
         <h3 className="text-center mb-6 text-gray-300">
           Enter your username and password
         </h3>
+
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
