@@ -19,7 +19,7 @@ export function useAuth() {
     // Verify token with backend
     (async () => {
       try {
-        const res = await fetch("http://172.23.5.77:4000/auth/verify", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/verify`, {
           method: 'POST',            
           headers: { Authorization: `Bearer ${token}` },
         });
