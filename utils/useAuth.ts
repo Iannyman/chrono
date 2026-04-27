@@ -27,6 +27,7 @@ export function useAuth() {
         if (!res.ok) {
           localStorage.removeItem("token");
           router.replace("/login");
+          return;
         }
 
         setChecking(false);
