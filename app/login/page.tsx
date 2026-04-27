@@ -1,9 +1,39 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from "react";
+
+// User details
+interface AuthUser {
+  username: string;
+  displayName: string;
+  department: string;
+}
+
+// API response after authentication
+interface AuthResponse {
+  token: string;
+  expiresIn: string;
+  user: AuthUser;
+}
+
 
 
 export default function LoginPage() {
   const router = useRouter()
+
+  // Display wrong credentials message
+  const [wrongCredentials, setWrongCredentials] = useState(false);
+
+  // Redirect user to root if is accessing login but it already has a valid token
+  useEffect(() => {
+    // Only runs on client
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      router.push("/");
+    }
+  }, [router]);
+
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
   event.preventDefault()
@@ -17,17 +47,34 @@ export default function LoginPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
-      credentials: 'include',
     })
 
-    const data = await response.text()
-    console.log('Server response:', data)
-
+    // console.log(response);
+    
+    if (response.status === 401) {
+      setWrongCredentials(true);
+      return;
+    }
+    
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      // throw new Error(`HTTP error! status: ${response.status}`)
+      console.log(`HTTP error! status: ${response.status}`);
+      return;
     }
 
-    router.push('/employee/page.tsx')
+    // read response from api
+    const data : AuthResponse = await response.json();
+    // sessionStorage.setItem("token", data.token);
+    localStorage.setItem("token", data.token);
+    console.log('Login successfully, token stored in local storage');
+
+    // console.log('Server response:', data)
+    // console.log('Token: ', data.token);
+    // console.log('Username: ', data.user.username);
+    // console.log('Display Name: ', data.user.displayName);
+    // console.log('User department: ', data.user.department);
+    
+    router.push('/')
   } catch (error) {
     console.error('Login error:', error)
   }
@@ -40,7 +87,9 @@ export default function LoginPage() {
         </h1>
 
         <h3 className="text-center mb-6 text-gray-300">
-          Enter your username and password
+          {wrongCredentials 
+            ? "User or password incorrent!" 
+            : "Enter your username and password"}
         </h3>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
