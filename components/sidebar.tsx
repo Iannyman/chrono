@@ -14,6 +14,7 @@ const menuItems = [
 
 interface SidebarProps {
   user: AuthUser | null;
+  isAdmin: boolean;
 }
 
 const Sidebar = ({ user }: SidebarProps) => {
