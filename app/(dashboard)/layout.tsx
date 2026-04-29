@@ -1,12 +1,6 @@
 import { cookies } from "next/headers";
 import Sidebar from "@/components/sidebar";
 
-interface AuthUser {
-  username: string;
-  displayName: string;
-  department: string;
-}
-
 export default async function DashboardLayout({
   children,
 }: {

@@ -12,12 +12,6 @@ const menuItems = [
   { name: "Settings", icon: Settings, variant: "ghost", href: "/settings" },
 ] as const;
 
-interface AuthUser {
-  username: string;
-  displayName: string;
-  department: string;
-}
-
 interface SidebarProps {
   user: AuthUser | null;
 }

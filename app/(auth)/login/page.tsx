@@ -2,25 +2,10 @@
 import { useRouter } from 'next/navigation'
 import { toast } from "sonner"
 
-interface AuthUser {
-  username: string;
-  displayName: string;
-  department: string;
-}
-
-interface AuthResponse {
-  token: string;
-  expiresIn: string;
-  user: AuthUser;
-}
-
 export default function LoginPage() {
   const router = useRouter()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    const formData = new FormData(event.currentTarget)
+  async function handleSubmit(formData: FormData) {
     const username = formData.get('username')
     const password = formData.get('password')
 
@@ -69,7 +54,7 @@ export default function LoginPage() {
           Enter your username and password
         </h3>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form action={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"
             name="username"
