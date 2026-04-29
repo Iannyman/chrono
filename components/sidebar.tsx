@@ -16,10 +16,7 @@ const Sidebar = () => {
   const router = useRouter();
 
   const handleLogout = () => {
-    // Clear token and user
-    localStorage.removeItem("token");
-
-    // Redirect to login
+    document.cookie = "token=; path=/; max-age=0";
     router.replace("/login");
   };
 
