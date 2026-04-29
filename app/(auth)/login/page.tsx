@@ -10,7 +10,7 @@ export default function LoginPage() {
     const password = formData.get('password')
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -31,11 +31,6 @@ export default function LoginPage() {
         toast.error("Something went wrong. Please try again later.", { position: "top-right" });
         return;
       }
-
-      const data: AuthResponse = await response.json();
-
-      document.cookie = `token=${data.token}; path=/; max-age=${data.expiresIn}; samesite=lax`;
-      document.cookie = `user=${encodeURIComponent(JSON.stringify(data.user))}; path=/; max-age=${data.expiresIn}; samesite=lax`;
 
       router.push('/')
     } catch (error) {

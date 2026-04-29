@@ -8,7 +8,14 @@ export default async function DashboardLayout({
 }) {
   const cookieStore = await cookies();
   const raw = cookieStore.get("user")?.value;
-  const user: AuthUser | null = raw ? JSON.parse(decodeURIComponent(raw)) : null;
+  let user: AuthUser | null = null;
+  if (raw) {
+    try {
+      user = JSON.parse(decodeURIComponent(raw));
+    } catch {
+      user = null;
+    }
+  }
 
   return (
     <>

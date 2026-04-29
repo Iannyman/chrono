@@ -21,6 +21,7 @@ const Sidebar = ({ user }: SidebarProps) => {
 
   const handleLogout = () => {
     document.cookie = "token=; path=/; max-age=0";
+    document.cookie = "user=; path=/; max-age=0";
     router.replace("/login");
   };
 
