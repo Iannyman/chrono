@@ -1,7 +1,6 @@
 "use client";
 
 import Sidebar from "@/components/sidebar";
-import { Toaster } from "@/components/ui/sonner";
 
 export default function DashboardLayout({
   children,
@@ -12,7 +11,6 @@ export default function DashboardLayout({
     <>
       <Sidebar />
       {children}
-      <Toaster />
     </>
   );
 }
