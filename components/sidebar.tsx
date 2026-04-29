@@ -12,14 +12,16 @@ const menuItems = [
   { name: "Settings", icon: Settings, variant: "ghost", href: "/settings" },
 ] as const;
 
-const Sidebar = () => {
+interface SidebarProps {
+  user: AuthUser | null;
+}
+
+const Sidebar = ({ user }: SidebarProps) => {
   const router = useRouter();
 
   const handleLogout = () => {
-    // Clear token and user
-    localStorage.removeItem("token");
-
-    // Redirect to login
+    document.cookie = "token=; path=/; max-age=0";
+    document.cookie = "user=; path=/; max-age=0";
     router.replace("/login");
   };
 
@@ -62,7 +64,8 @@ const Sidebar = () => {
           <div className="absolute bottom-5 border-t-2 border-gray-700 px-4 pt-4 w-50">
             <div className="flex flex-col gap-3">
               <div className="leading-4">
-                <h4 className="font-semibold">User</h4>
+                <h4 className="font-semibold">{user?.displayName ?? "User"}</h4>
+                <span className="text-xs text-gray-400">{user?.department}</span>
               </div>
 
               <Button
