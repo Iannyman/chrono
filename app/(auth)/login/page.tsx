@@ -50,8 +50,7 @@ export default function LoginPage() {
       const data: AuthResponse = await response.json();
 
       document.cookie = `token=${data.token}; path=/; max-age=${data.expiresIn}; samesite=lax`;
-
-      window.dispatchEvent(new CustomEvent('user-authenticated', { detail: data.user }));
+      document.cookie = `user=${encodeURIComponent(JSON.stringify(data.user))}; path=/; max-age=${data.expiresIn}; samesite=lax`;
 
       router.push('/')
     } catch (error) {
