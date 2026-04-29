@@ -31,7 +31,7 @@ export default function LoginPage() {
   }, [router]);
 
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget)
@@ -56,7 +56,7 @@ export default function LoginPage() {
         toast.warning('Too many login attempts. Please try again later.',{ position: "top-right" })
         return;
       }
-      
+
       // unhandled error
       if (!response.ok) {
         console.error("Unexpected error:", response.status);
@@ -69,10 +69,10 @@ export default function LoginPage() {
 
       // save token to local storage
       localStorage.setItem("token", data.token);
-      
+
       // Notify all components about the user login
       window.dispatchEvent(new CustomEvent('user-authenticated', { detail: data.user }));
-      
+
       router.push('/')
     } catch (error) {
       console.error('Login error:', error)
