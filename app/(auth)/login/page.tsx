@@ -35,6 +35,7 @@ export default function LoginPage() {
       router.push('/')
     } catch (error) {
       console.error('Login error:', error)
+      toast.error("Unable to connect. Please check your network and try again.", { position: "top-right" });
     }
   }
 

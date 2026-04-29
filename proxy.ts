@@ -4,14 +4,19 @@ import type { NextRequest } from "next/server";
 const publicRoutes = ["/login"];
 
 async function validateToken(token: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2000);
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/verify`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
+      signal: controller.signal,
     });
     return res.ok;
   } catch {
     return false;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
