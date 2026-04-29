@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const menuItems = [
   { name: "Home", icon: House, variant: "ghost", href: "/" },
@@ -21,8 +22,13 @@ const Sidebar = ({ user, isAdmin }: SidebarProps) => {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/login");
+    try{
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if(!response.ok) return;
+      router.replace("/login");
+    } catch {
+      toast.error("Something went wrong. Please try again.", { position: "top-right" });
+    }    
   };
 
   return (
