@@ -17,7 +17,7 @@ interface SidebarProps {
   isAdmin: boolean;
 }
 
-const Sidebar = ({ user }: SidebarProps) => {
+const Sidebar = ({ user, isAdmin }: SidebarProps) => {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -65,7 +65,7 @@ const Sidebar = ({ user }: SidebarProps) => {
             <div className="flex flex-col gap-3">
               <div className="leading-4">
                 <h4 className="font-semibold">{user?.displayName ?? "User"}</h4>
-                <span className="text-xs text-gray-400">{user?.department}</span>
+                <span className="text-xs text-gray-400">{isAdmin ? "Admin" : ""}</span>
               </div>
 
               <Button

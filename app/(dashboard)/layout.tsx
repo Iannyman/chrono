@@ -17,7 +17,7 @@ export default async function DashboardLayout({
     }
   }
 
-  // --- ADMIN CHECK (server-side, hydration-safe) ---
+  // --- ADMIN CHECK ---
   const admins = process.env.ADMINS?.toLowerCase().split(",").map(a => a.trim()) ?? [];
   const isAdmin = user?.username ? admins.includes(user.username) : false;
 
