@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const menuItems = [
   { name: "Home", icon: House, variant: "ghost", href: "/" },
@@ -14,15 +15,20 @@ const menuItems = [
 
 interface SidebarProps {
   user: AuthUser | null;
+  isAdmin: boolean;
 }
 
-const Sidebar = ({ user }: SidebarProps) => {
+const Sidebar = ({ user, isAdmin }: SidebarProps) => {
   const router = useRouter();
 
-  const handleLogout = () => {
-    document.cookie = "token=; path=/; max-age=0";
-    document.cookie = "user=; path=/; max-age=0";
-    router.replace("/login");
+  const handleLogout = async () => {
+    try{
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if(!response.ok) return;
+      router.replace("/login");
+    } catch {
+      toast.error("Something went wrong. Please try again.", { position: "top-right" });
+    }    
   };
 
   return (
@@ -65,7 +71,7 @@ const Sidebar = ({ user }: SidebarProps) => {
             <div className="flex flex-col gap-3">
               <div className="leading-4">
                 <h4 className="font-semibold">{user?.displayName ?? "User"}</h4>
-                <span className="text-xs text-gray-400">{user?.department}</span>
+                <span className="text-xs text-gray-400">{isAdmin ? "Admin" : ""}</span>
               </div>
 
               <Button
