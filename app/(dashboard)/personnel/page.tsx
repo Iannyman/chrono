@@ -40,7 +40,6 @@ const PersonnelPage = () => {
   const [createResponse, setCreateResponse] = useState<unknown>(null);
 
   // Modify Person state
-  const [modifyReader, setModifyReader] = useState("all");
   const [modifyEmployeeNo, setModifyEmployeeNo] = useState("");
   const [modifyName, setModifyName] = useState("");
   const [modifyLoading, setModifyLoading] = useState(false);
@@ -154,19 +153,34 @@ const PersonnelPage = () => {
     setModifyLoading(true);
     setModifyResponse(null);
     try {
+      const now = new Date();
+      const beginTime = `${now.getFullYear()}-01-01T00:00:00`;
+      const endTime = `${now.getFullYear() + 10}-12-31T23:59:59`;
+
       const res = await fetch("/api/persons/modify", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          readerName: modifyReader,
+          readerName: "all",
           employeeNo: modifyEmployeeNo,
           name: modifyName,
+          valid: {
+            enable: true,
+            beginTime,
+            endTime,
+          },
         }),
       });
       const data = await res.json();
       setModifyResponse(data);
       if (res.ok) {
-        toast.success("Person modified successfully.", { position: "top-right" });
+        const responseObj = (data as { data?: Record<string, { subStatusCode?: string }> }).data;
+        const firstResult = responseObj ? Object.values(responseObj)[0] : undefined;
+        if (firstResult?.subStatusCode === "badParameters") {
+          toast.error("Person does not exist.", { position: "top-right" });
+        } else {
+          toast.success("Person modified successfully.", { position: "top-right" });
+        }
       } else {
         toast.error((data as { error?: string }).error || "Request failed.", {
           position: "top-right",
@@ -485,22 +499,12 @@ const PersonnelPage = () => {
               </p>
               <div className="space-y-5 max-w-lg">
                 <div>
-                  <label className={labelClass}>Reader Name</label>
-                  <input
-                    type="text"
-                    value={modifyReader}
-                    onChange={(e) => setModifyReader(e.target.value)}
-                    placeholder="e.g. 304DW"
-                    className={inputClass}
-                  />
-                </div>
-                <div>
                   <label className={labelClass}>Employee Number</label>
                   <input
                     type="text"
                     value={modifyEmployeeNo}
                     onChange={(e) => setModifyEmployeeNo(e.target.value)}
-                    placeholder="e.g. 7628"
+                    placeholder="e.g. 1234"
                     className={inputClass}
                   />
                 </div>
