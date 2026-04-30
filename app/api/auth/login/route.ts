@@ -42,14 +42,20 @@ export async function POST(request: Request) {
 
   const data = await response.json();
 
-  const maxAge = Number(data.expiresIn);
-  const validatedMaxAge = Number.isFinite(maxAge) && maxAge > 0 ? maxAge : 3600;
+  let maxAge = 3600;
+  if (data.expiresAt) {
+    const diff = Math.floor((new Date(data.expiresAt).getTime() - Date.now()) / 1000);
+    if (diff > 0) maxAge = diff;
+  } else if (data.expiresIn) {
+    const parsed = Number(data.expiresIn);
+    if (Number.isFinite(parsed) && parsed > 0) maxAge = parsed;
+  }
 
   const res = NextResponse.json({ user: data.user });
 
   res.cookies.set("token", data.token, {
     path: "/",
-    maxAge: validatedMaxAge,
+    maxAge: maxAge,
     sameSite: "lax",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -57,7 +63,7 @@ export async function POST(request: Request) {
 
   res.cookies.set("user", encodeURIComponent(JSON.stringify(data.user)), {
     path: "/",
-    maxAge: validatedMaxAge,
+    maxAge: maxAge,
     sameSite: "lax",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
