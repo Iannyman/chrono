@@ -310,42 +310,38 @@ const PersonnelPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 w-full">
-      {/* Header */}
-      <div className="mx-8 mt-8 mb-2">
-        <h1 className="text-2xl font-bold text-white">Personnel Management</h1>
-        <p className="text-gray-400 text-sm mt-1">
-          Manage persons on the access control system.
-        </p>
+      {/* Header row: title left, tabs right */}
+      <div className="mx-8 mt-8 mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Personnel Management</h1>
+          <p className="text-gray-400 text-sm mt-1">
+            Manage persons on the access control system.
+          </p>
+        </div>
+        <nav className="flex gap-1 bg-gray-800 rounded-lg p-1">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 mx-8 my-4 flex-1">
-        {/* Sidebar Tabs */}
-        <div className="lg:w-56 shrink-0">
-          <div className="bg-gray-800 rounded-xl shadow-md p-2">
-            <nav className="flex flex-col gap-1">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      activeTab === tab.id
-                        ? "bg-gray-700 text-white"
-                        : "text-gray-400 hover:text-white hover:bg-gray-700/50"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-        </div>
-
+      <div className="mx-8 my-4 flex-1">
         {/* Content Area */}
-        <div className="flex-1 bg-gray-800 rounded-xl shadow-md p-6">
+        <div className="bg-gray-800 rounded-xl shadow-md p-6">
           {/* Person Details */}
           {activeTab === "details" && (
             <div>
@@ -370,7 +366,7 @@ const PersonnelPage = () => {
                     type="text"
                     value={detailsEmployeeNos}
                     onChange={(e) => setDetailsEmployeeNos(e.target.value)}
-                    placeholder="Comma-separated, e.g. 7628, 7629"
+                    placeholder="Comma-separated, e.g. 1234, 5678"
                     className={inputClass}
                   />
                   <p className="text-xs text-gray-500 mt-1">
