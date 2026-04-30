@@ -19,7 +19,7 @@ const PersonnelPage = () => {
 
   const tabs = [
     { id: "details", label: "Get Details", icon: Search },
-    { id: "create", label: "Create Person", icon: UserPlus },
+    { id: "create", label: "Register Person", icon: UserPlus },
     { id: "modify", label: "Modify Person", icon: Pencil },
     { id: "delete", label: "Delete Person", icon: Trash2 },
   ];
@@ -30,7 +30,7 @@ const PersonnelPage = () => {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsResponse, setDetailsResponse] = useState<unknown>(null);
 
-  // Create Person state
+  // Register Person state
   const [createEmployeeNo, setCreateEmployeeNo] = useState("");
   const [createName, setCreateName] = useState("");
   const [createCardNo, setCreateCardNo] = useState("");
@@ -122,7 +122,7 @@ const PersonnelPage = () => {
         } else if (cardExists) {
           toast.error("Card number already exists.", { position: "top-right" });
         } else {
-          toast.success("Person created successfully.", { position: "top-right" });
+          toast.success("Person registred successfully.", { position: "top-right" });
         }
       } else {
         toast.error((data as { error?: string }).error || "Request failed.", {
@@ -408,10 +408,10 @@ const PersonnelPage = () => {
             </div>
           )}
 
-          {/* Create Person */}
+          {/* Register Person */}
           {activeTab === "create" && (
             <div>
-              <h2 className="text-lg font-semibold text-white mb-1">Create Person with Card</h2>
+              <h2 className="text-lg font-semibold text-white mb-1">Register Person</h2>
               <p className="text-sm text-gray-400 mb-6">
                 Register a new person with an associated access card.
               </p>
@@ -458,7 +458,7 @@ const PersonnelPage = () => {
                   ) : (
                     <UserPlus className="h-4 w-4" />
                   )}
-                  {createLoading ? "Creating..." : "Create Person"}
+                  {createLoading ? "Creating..." : "Register Person"}
                 </button>
               </div>
             </div>
