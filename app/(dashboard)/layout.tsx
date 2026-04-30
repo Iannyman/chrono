@@ -11,7 +11,7 @@ export default async function DashboardLayout({
   let user: AuthUser | null = null;
   if (raw) {
     try {
-      user = JSON.parse(decodeURIComponent(raw));
+      user = JSON.parse(raw);
     } catch {
       user = null;
     }
