@@ -40,30 +40,32 @@ export async function POST(request: Request) {
     );
   }
 
-  const data = await response.json();
+  const data: AuthResponse = await response.json();
 
-  let maxAge = 3600;
-  if (data.expiresAt) {
-    const diff = Math.floor((new Date(data.expiresAt).getTime() - Date.now()) / 1000);
-    if (diff > 0) maxAge = diff;
-  } else if (data.expiresIn) {
-    const parsed = Number(data.expiresIn);
-    if (Number.isFinite(parsed) && parsed > 0) maxAge = parsed;
-  }
+  const maxAge = (() => {
+    const match = String(data.expiresIn).match(/^(\d+)([smhd])$/);
+    if (match) {
+      const value = parseInt(match[1], 10);
+      const units: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400 };
+      return value * units[match[2]];
+    }
+    const n = Number(data.expiresIn);
+    return Number.isFinite(n) && n > 0 ? n : 3600;
+  })();
 
   const res = NextResponse.json({ user: data.user });
 
   res.cookies.set("token", data.token, {
     path: "/",
-    maxAge: maxAge,
+    maxAge,
     sameSite: "lax",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
   });
 
-  res.cookies.set("user", encodeURIComponent(JSON.stringify(data.user)), {
+  res.cookies.set("user", JSON.stringify(data.user), {
     path: "/",
-    maxAge: maxAge,
+    maxAge,
     sameSite: "lax",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

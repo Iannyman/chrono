@@ -6,6 +6,6 @@ interface AuthUser {
 
 interface AuthResponse {
   token: string;
-  expiresAt: string;
+  expiresIn: number;
   user: AuthUser;
 }
