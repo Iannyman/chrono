@@ -229,46 +229,70 @@ const PersonnelPage = () => {
 
     if (users.length === 0) {
       return (
-        <div className="mt-4 bg-gray-900 rounded-lg p-4 border border-gray-700">
+        <div className="mt-4 bg-gray-900/60 rounded-xl p-6 border border-gray-700/50 text-center">
           <p className="text-sm text-gray-400">No persons found.</p>
         </div>
       );
     }
 
     return (
-      <div className="mt-4 space-y-3">
-        {users.map((user) => (
-          <div key={user.employeeNo} className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Employee No</p>
-                <p className="text-sm text-white">{user.employeeNo}</p>
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-300">
+            Results
+            <span className="ml-2 text-xs font-normal text-gray-500">({users.length} found)</span>
+          </h3>
+        </div>
+        <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1 scrollbar-thin">
+          {users.map((user) => {
+            const enabled = user.Valid?.enable ?? false;
+            return (
+              <div
+                key={user.employeeNo}
+                className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-xl border border-gray-700/60 overflow-hidden hover:border-[#4682B4]/40 transition-colors"
+              >
+                {/* Card header */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700/40 bg-gray-800/40">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-[#4682B4]/20 flex items-center justify-center text-[#4682B4] font-bold text-sm">
+                      {user.name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{user.name}</p>
+                      <p className="text-xs text-gray-500">#{user.employeeNo}</p>
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                      enabled
+                        ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/20"
+                        : "bg-red-500/15 text-red-400 ring-1 ring-red-500/20"
+                    }`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${enabled ? "bg-emerald-400" : "bg-red-400"}`} />
+                    {enabled ? "Active" : "Inactive"}
+                  </span>
+                </div>
+
+                {/* Card body */}
+                <div className="px-5 py-3.5 grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider text-gray-500 mb-1">Card No</p>
+                    <p className="text-sm text-white font-mono">{cardMap.get(user.employeeNo) ?? "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider text-gray-500 mb-1">Valid From</p>
+                    <p className="text-sm text-white">{user.Valid?.beginTime ?? "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider text-gray-500 mb-1">Valid Until</p>
+                    <p className="text-sm text-white">{user.Valid?.endTime ?? "—"}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Name</p>
-                <p className="text-sm text-white">{user.name}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Card No</p>
-                <p className="text-sm text-white">{cardMap.get(user.employeeNo) ?? "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Enabled</p>
-                <p className={`text-sm ${user.Valid?.enable ? "text-emerald-400" : "text-red-400"}`}>
-                  {user.Valid?.enable ? "Yes" : "No"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Valid From</p>
-                <p className="text-sm text-white">{user.Valid?.beginTime ?? "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Valid Until</p>
-                <p className="text-sm text-white">{user.Valid?.endTime ?? "—"}</p>
-              </div>
-            </div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
       </div>
     );
   };
