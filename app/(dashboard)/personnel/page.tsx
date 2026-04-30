@@ -119,7 +119,20 @@ const PersonnelPage = () => {
       const data = await res.json();
       setCreateResponse(data);
       if (res.ok) {
-        toast.success("Person created successfully.", { position: "top-right" });
+        const responseObj = (data as { data?: Record<string, { person?: { subStatusCode?: string }; card?: { subStatusCode?: string } }> }).data;
+        const firstResult = responseObj ? Object.values(responseObj)[0] : undefined;
+        const personExists = firstResult?.person?.subStatusCode === "deviceUserAlreadyExist";
+        const cardExists = firstResult?.card?.subStatusCode === "cardNoAlreadyExist";
+
+        if (personExists && cardExists) {
+          toast.error("Person and card already exist.", { position: "top-right" });
+        } else if (personExists) {
+          toast.error("Person already exists.", { position: "top-right" });
+        } else if (cardExists) {
+          toast.error("Card number already exists.", { position: "top-right" });
+        } else {
+          toast.success("Person created successfully.", { position: "top-right" });
+        }
       } else {
         toast.error((data as { error?: string }).error || "Request failed.", {
           position: "top-right",
