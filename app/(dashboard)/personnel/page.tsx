@@ -27,30 +27,27 @@ const PersonnelPage = () => {
   ];
 
   // Person Details state
-  const [detailsReader, setDetailsReader] = useState("304DW");
-  const [detailsEmployeeNos, setDetailsEmployeeNos] = useState("7628");
+  const [detailsReader, setDetailsReader] = useState("");
+  const [detailsEmployeeNos, setDetailsEmployeeNos] = useState("");
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsResponse, setDetailsResponse] = useState<unknown>(null);
 
   // Create Person state
-  const [createReader, setCreateReader] = useState("all");
   const [createEmployeeNo, setCreateEmployeeNo] = useState("");
   const [createName, setCreateName] = useState("");
   const [createCardNo, setCreateCardNo] = useState("");
-  const [createUserType, setCreateUserType] = useState("normal");
-  const [createCardType, setCreateCardType] = useState("normalCard");
   const [createLoading, setCreateLoading] = useState(false);
   const [createResponse, setCreateResponse] = useState<unknown>(null);
 
   // Modify Person state
-  const [modifyReader, setModifyReader] = useState("304DW");
+  const [modifyReader, setModifyReader] = useState("all");
   const [modifyEmployeeNo, setModifyEmployeeNo] = useState("");
   const [modifyName, setModifyName] = useState("");
   const [modifyLoading, setModifyLoading] = useState(false);
   const [modifyResponse, setModifyResponse] = useState<unknown>(null);
 
   // Delete Person state
-  const [deleteReader, setDeleteReader] = useState("304DW");
+  const [deleteReader, setDeleteReader] = useState("all");
   const [deleteEmployeeNos, setDeleteEmployeeNos] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteResponse, setDeleteResponse] = useState<unknown>(null);
@@ -111,12 +108,12 @@ const PersonnelPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          readerName: createReader,
+          readerName: "all",
           employeeNo: createEmployeeNo,
           name: createName,
           cardNo: createCardNo,
-          userType: createUserType,
-          cardType: createCardType,
+          userType: "normal",
+          cardType: "normalCard",
         }),
       });
       const data = await res.json();
@@ -405,16 +402,6 @@ const PersonnelPage = () => {
                 Register a new person with an associated access card.
               </p>
               <div className="space-y-5 max-w-lg">
-                <div>
-                  <label className={labelClass}>Reader Name</label>
-                  <input
-                    type="text"
-                    value={createReader}
-                    onChange={(e) => setCreateReader(e.target.value)}
-                    placeholder="e.g. all"
-                    className={inputClass}
-                  />
-                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>Employee Number</label>
@@ -422,7 +409,7 @@ const PersonnelPage = () => {
                       type="text"
                       value={createEmployeeNo}
                       onChange={(e) => setCreateEmployeeNo(e.target.value)}
-                      placeholder="e.g. 7628"
+                      placeholder="e.g. 1234"
                       className={inputClass}
                     />
                   </div>
@@ -446,35 +433,6 @@ const PersonnelPage = () => {
                     placeholder="e.g. John Doe"
                     className={inputClass}
                   />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelClass}>User Type</label>
-                    <select
-                      value={createUserType}
-                      onChange={(e) => setCreateUserType(e.target.value)}
-                      className={selectClass}
-                    >
-                      <option value="normal">Normal</option>
-                      <option value="vip">VIP</option>
-                      <option value="blacklist">Blacklist</option>
-                      <option value="visitor">Visitor</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Card Type</label>
-                    <select
-                      value={createCardType}
-                      onChange={(e) => setCreateCardType(e.target.value)}
-                      className={selectClass}
-                    >
-                      <option value="normalCard">Normal Card</option>
-                      <option value="disable">Disabled</option>
-                      <option value="patrolCard">Patrol Card</option>
-                      <option value="panicCard">Panic Card</option>
-                      <option value="visitorCard">Visitor Card</option>
-                    </select>
-                  </div>
                 </div>
                 <button
                   onClick={handleCreatePerson}
@@ -562,7 +520,7 @@ const PersonnelPage = () => {
                     type="text"
                     value={deleteReader}
                     onChange={(e) => setDeleteReader(e.target.value)}
-                    placeholder="e.g. 304DW"
+                    placeholder="all"
                     className={inputClass}
                   />
                 </div>
@@ -572,7 +530,7 @@ const PersonnelPage = () => {
                     type="text"
                     value={deleteEmployeeNos}
                     onChange={(e) => setDeleteEmployeeNos(e.target.value)}
-                    placeholder="Comma-separated, e.g. 7628, 7629"
+                    placeholder="Comma-separated, e.g. 1234, 5678"
                     className={inputClass}
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -591,7 +549,6 @@ const PersonnelPage = () => {
                   )}
                   {deleteLoading ? "Deleting..." : "Delete Person"}
                 </button>
-                {deleteResponse && renderResponse(deleteResponse)}
               </div>
             </div>
           )}
