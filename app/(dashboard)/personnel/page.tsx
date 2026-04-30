@@ -233,14 +233,14 @@ const PersonnelPage = () => {
     }
 
     return (
-      <div className="mt-6">
+      <div className="mt-6 flex flex-col min-h-0 flex-1">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-300">
             Results
             <span className="ml-2 text-xs font-normal text-gray-500">({users.length} found)</span>
           </h3>
         </div>
-        <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1 scrollbar-thin">
+        <div className="space-y-3 overflow-y-auto flex-1 min-h-0 pr-1">
           {users.map((user) => {
             const enabled = user.Valid?.enable ?? false;
             return (
@@ -309,7 +309,7 @@ const PersonnelPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 w-full">
+    <div className="flex flex-col h-screen bg-gray-900 w-full overflow-hidden">
       {/* Header row: title left, tabs right */}
       <div className="mx-8 mt-8 mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -394,7 +394,7 @@ const PersonnelPage = () => {
               <div className="hidden lg:block w-px bg-gray-600" />
 
               {/* Right: Results */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 flex flex-col min-h-0">
                 {detailsResponse !== null ? (
                   renderDetailsResult(detailsResponse)
                 ) : (
@@ -561,6 +561,7 @@ const PersonnelPage = () => {
                   )}
                   {deleteLoading ? "Deleting..." : "Delete Person"}
                 </button>
+                {deleteResponse && renderResponse(deleteResponse)}
               </div>
             </div>
           )}
