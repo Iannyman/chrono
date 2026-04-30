@@ -458,7 +458,7 @@ const PersonnelPage = () => {
                   ) : (
                     <UserPlus className="h-4 w-4" />
                   )}
-                  {createLoading ? "Creating..." : "Register Person"}
+                  {createLoading ? "Registering..." : "Register Person"}
                 </button>
               </div>
             </div>
