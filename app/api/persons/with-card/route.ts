@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `${process.env.PERSONS_API_BASE_URL}/persons/with-card`,
+      `${process.env.API_BASE_URL}/persons/with-card`,
       {
         method: "POST",
         headers: {

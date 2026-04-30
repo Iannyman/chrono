@@ -20,7 +20,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `${process.env.PERSONS_API_BASE_URL}/persons`,
+      `${process.env.API_BASE_URL}/persons`,
       {
         method: "PUT",
         headers: {

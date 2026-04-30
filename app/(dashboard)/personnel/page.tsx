@@ -206,6 +206,73 @@ const PersonnelPage = () => {
     }
   };
 
+  const renderDetailsResult = (response: unknown) => {
+    const data = response as {
+      data?: {
+        persons?: {
+          UserInfoSearch?: {
+            UserInfo?: {
+              employeeNo: string;
+              name: string;
+              Valid?: { enable: boolean; beginTime: string; endTime: string };
+            }[];
+          };
+        };
+        cards?: {
+          CardInfoSearch?: { CardInfo?: { employeeNo: string; cardNo: string }[] };
+        };
+      };
+    };
+    const users = data?.data?.persons?.UserInfoSearch?.UserInfo ?? [];
+    const cards = data?.data?.cards?.CardInfoSearch?.CardInfo ?? [];
+    const cardMap = new Map(cards.map((c) => [c.employeeNo, c.cardNo]));
+
+    if (users.length === 0) {
+      return (
+        <div className="mt-4 bg-gray-900 rounded-lg p-4 border border-gray-700">
+          <p className="text-sm text-gray-400">No persons found.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-4 space-y-3">
+        {users.map((user) => (
+          <div key={user.employeeNo} className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Employee No</p>
+                <p className="text-sm text-white">{user.employeeNo}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Name</p>
+                <p className="text-sm text-white">{user.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Card No</p>
+                <p className="text-sm text-white">{cardMap.get(user.employeeNo) ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Enabled</p>
+                <p className={`text-sm ${user.Valid?.enable ? "text-emerald-400" : "text-red-400"}`}>
+                  {user.Valid?.enable ? "Yes" : "No"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Valid From</p>
+                <p className="text-sm text-white">{user.Valid?.beginTime ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-0.5">Valid Until</p>
+                <p className="text-sm text-white">{user.Valid?.endTime ?? "—"}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const renderResponse = (data: unknown) => {
     const text = JSON.stringify(data, null, 2);
     return (
@@ -301,7 +368,7 @@ const PersonnelPage = () => {
                   )}
                   {detailsLoading ? "Fetching..." : "Get Details"}
                 </button>
-                {detailsResponse && renderResponse(detailsResponse)}
+                {detailsResponse !== null && renderDetailsResult(detailsResponse)}
               </div>
             </div>
           )}
