@@ -344,7 +344,7 @@ const PersonnelPage = () => {
         <div className="bg-gray-800 rounded-xl shadow-md p-6 h-full">
           {/* Person Details */}
           {activeTab === "details" && (
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-6 h-full">
               {/* Left: Form */}
               <div className="lg:w-80 shrink-0">
                 <h2 className="text-lg font-semibold text-white mb-1">Get Person Details</h2>
@@ -390,8 +390,11 @@ const PersonnelPage = () => {
                 </div>
               </div>
 
+              {/* Divider */}
+              <div className="hidden lg:block w-px bg-gray-600" />
+
               {/* Right: Results */}
-              <div className="flex-1 lg:border-l lg:border-gray-700 lg:pl-6">
+              <div className="flex-1 min-w-0">
                 {detailsResponse !== null ? (
                   renderDetailsResult(detailsResponse)
                 ) : (
