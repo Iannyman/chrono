@@ -42,7 +42,6 @@ const PersonnelPage = () => {
   const [modifyLoading, setModifyLoading] = useState(false);
 
   // Delete Person state
-  const [deleteReader, setDeleteReader] = useState("all");
   const [deleteEmployeeNos, setDeleteEmployeeNos] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -200,7 +199,7 @@ const PersonnelPage = () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          readerName: deleteReader,
+          readerName: "all",
           employeeNoList,
         }),
       });
@@ -517,16 +516,6 @@ const PersonnelPage = () => {
                 Remove one or more persons from the access control system.
               </p>
               <div className="space-y-5 max-w-lg">
-                <div>
-                  <label className={labelClass}>Reader Name</label>
-                  <input
-                    type="text"
-                    value={deleteReader}
-                    onChange={(e) => setDeleteReader(e.target.value)}
-                    placeholder="all"
-                    className={inputClass}
-                  />
-                </div>
                 <div>
                   <label className={labelClass}>Employee Numbers</label>
                   <input
