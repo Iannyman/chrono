@@ -339,9 +339,9 @@ const PersonnelPage = () => {
         </nav>
       </div>
 
-      <div className="mx-8 my-4 flex-1">
+      <div className="mx-8 my-4 flex-1 min-h-0">
         {/* Content Area */}
-        <div className="bg-gray-800 rounded-xl shadow-md p-6">
+        <div className="bg-gray-800 rounded-xl shadow-md p-6 h-full">
           {/* Person Details */}
           {activeTab === "details" && (
             <div className="flex flex-col lg:flex-row gap-6">
