@@ -344,48 +344,61 @@ const PersonnelPage = () => {
         <div className="bg-gray-800 rounded-xl shadow-md p-6">
           {/* Person Details */}
           {activeTab === "details" && (
-            <div>
-              <h2 className="text-lg font-semibold text-white mb-1">Get Person Details</h2>
-              <p className="text-sm text-gray-400 mb-6">
-                Retrieve details for one or more persons by employee number.
-              </p>
-              <div className="space-y-5 max-w-lg">
-                <div>
-                  <label className={labelClass}>Reader Name</label>
-                  <input
-                    type="text"
-                    value={detailsReader}
-                    onChange={(e) => setDetailsReader(e.target.value)}
-                    placeholder="e.g. 304DW"
-                    className={inputClass}
-                  />
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Left: Form */}
+              <div className="lg:w-80 shrink-0">
+                <h2 className="text-lg font-semibold text-white mb-1">Get Person Details</h2>
+                <p className="text-sm text-gray-400 mb-6">
+                  Retrieve details for one or more persons by employee number.
+                </p>
+                <div className="space-y-5">
+                  <div>
+                    <label className={labelClass}>Reader Name</label>
+                    <input
+                      type="text"
+                      value={detailsReader}
+                      onChange={(e) => setDetailsReader(e.target.value)}
+                      placeholder="e.g. 304DW"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Employee Numbers</label>
+                    <input
+                      type="text"
+                      value={detailsEmployeeNos}
+                      onChange={(e) => setDetailsEmployeeNos(e.target.value)}
+                      placeholder="Comma-separated, e.g. 1234, 5678"
+                      className={inputClass}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Separate multiple employee numbers with commas.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleGetDetails}
+                    disabled={detailsLoading}
+                    className="flex items-center gap-2 bg-[#4682B4] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#3a6f9e] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {detailsLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Search className="h-4 w-4" />
+                    )}
+                    {detailsLoading ? "Fetching..." : "Get Details"}
+                  </button>
                 </div>
-                <div>
-                  <label className={labelClass}>Employee Numbers</label>
-                  <input
-                    type="text"
-                    value={detailsEmployeeNos}
-                    onChange={(e) => setDetailsEmployeeNos(e.target.value)}
-                    placeholder="Comma-separated, e.g. 1234, 5678"
-                    className={inputClass}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Separate multiple employee numbers with commas.
-                  </p>
-                </div>
-                <button
-                  onClick={handleGetDetails}
-                  disabled={detailsLoading}
-                  className="flex items-center gap-2 bg-[#4682B4] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#3a6f9e] transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {detailsLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                  {detailsLoading ? "Fetching..." : "Get Details"}
-                </button>
-                {detailsResponse !== null && renderDetailsResult(detailsResponse)}
+              </div>
+
+              {/* Right: Results */}
+              <div className="flex-1 lg:border-l lg:border-gray-700 lg:pl-6">
+                {detailsResponse !== null ? (
+                  renderDetailsResult(detailsResponse)
+                ) : (
+                  <div className="h-full flex items-center justify-center">
+                    <p className="text-sm text-gray-500">Results will appear here.</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
