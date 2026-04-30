@@ -12,8 +12,6 @@ import { toast } from "sonner";
 
 const inputClass =
   "w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-2 focus:ring-[#4682B4]/50 focus:border-[#4682B4]";
-const selectClass =
-  "w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-2 focus:ring-[#4682B4]/50 focus:border-[#4682B4] appearance-none";
 const labelClass = "block text-sm text-gray-400 mb-1.5";
 
 const PersonnelPage = () => {
@@ -37,19 +35,16 @@ const PersonnelPage = () => {
   const [createName, setCreateName] = useState("");
   const [createCardNo, setCreateCardNo] = useState("");
   const [createLoading, setCreateLoading] = useState(false);
-  const [createResponse, setCreateResponse] = useState<unknown>(null);
 
   // Modify Person state
   const [modifyEmployeeNo, setModifyEmployeeNo] = useState("");
   const [modifyName, setModifyName] = useState("");
   const [modifyLoading, setModifyLoading] = useState(false);
-  const [modifyResponse, setModifyResponse] = useState<unknown>(null);
 
   // Delete Person state
   const [deleteReader, setDeleteReader] = useState("all");
   const [deleteEmployeeNos, setDeleteEmployeeNos] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [deleteResponse, setDeleteResponse] = useState<unknown>(null);
 
   // --- API Handlers ---
 
@@ -101,7 +96,6 @@ const PersonnelPage = () => {
     }
 
     setCreateLoading(true);
-    setCreateResponse(null);
     try {
       const res = await fetch("/api/persons/with-card", {
         method: "POST",
@@ -116,7 +110,6 @@ const PersonnelPage = () => {
         }),
       });
       const data = await res.json();
-      setCreateResponse(data);
       if (res.ok) {
         const responseObj = (data as { data?: Record<string, { person?: { subStatusCode?: string }; card?: { subStatusCode?: string } }> }).data;
         const firstResult = responseObj ? Object.values(responseObj)[0] : undefined;
@@ -151,7 +144,6 @@ const PersonnelPage = () => {
     }
 
     setModifyLoading(true);
-    setModifyResponse(null);
     try {
       const now = new Date();
       const beginTime = `${now.getFullYear()}-01-01T00:00:00`;
@@ -172,7 +164,6 @@ const PersonnelPage = () => {
         }),
       });
       const data = await res.json();
-      setModifyResponse(data);
       if (res.ok) {
         const responseObj = (data as { data?: Record<string, { subStatusCode?: string }> }).data;
         const firstResult = responseObj ? Object.values(responseObj)[0] : undefined;
@@ -204,7 +195,6 @@ const PersonnelPage = () => {
     }
 
     setDeleteLoading(true);
-    setDeleteResponse(null);
     try {
       const res = await fetch("/api/persons/delete", {
         method: "PUT",
@@ -215,7 +205,6 @@ const PersonnelPage = () => {
         }),
       });
       const data = await res.json();
-      setDeleteResponse(data);
       if (res.ok) {
         toast.success("Person(s) deleted successfully.", { position: "top-right" });
       } else {
@@ -273,7 +262,7 @@ const PersonnelPage = () => {
             return (
               <div
                 key={user.employeeNo}
-                className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-xl border border-gray-700/60 overflow-hidden hover:border-[#4682B4]/40 transition-colors"
+                className="bg-linear-to-br from-gray-800/80 to-gray-900/80 rounded-xl border border-gray-700/60 overflow-hidden hover:border-[#4682B4]/40 transition-colors"
               >
                 {/* Card header */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700/40 bg-gray-800/40">
@@ -321,19 +310,6 @@ const PersonnelPage = () => {
     );
   };
 
-  const renderResponse = (data: unknown) => {
-    const text = JSON.stringify(data, null, 2);
-    return (
-      <div className="mt-4 bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">
-          Response
-        </p>
-        <pre className="text-sm text-emerald-400 whitespace-pre-wrap wrap-break-word overflow-auto max-h-64">
-          {text}
-        </pre>
-      </div>
-    );
-  };
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 w-full overflow-hidden">
@@ -485,7 +461,6 @@ const PersonnelPage = () => {
                   )}
                   {createLoading ? "Creating..." : "Create Person"}
                 </button>
-                {createResponse && renderResponse(createResponse)}
               </div>
             </div>
           )}
@@ -530,7 +505,6 @@ const PersonnelPage = () => {
                   )}
                   {modifyLoading ? "Modifying..." : "Modify Person"}
                 </button>
-                {modifyResponse && renderResponse(modifyResponse)}
               </div>
             </div>
           )}
@@ -578,7 +552,6 @@ const PersonnelPage = () => {
                   )}
                   {deleteLoading ? "Deleting..." : "Delete Person"}
                 </button>
-                {deleteResponse && renderResponse(deleteResponse)}
               </div>
             </div>
           )}
