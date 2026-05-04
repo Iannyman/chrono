@@ -122,7 +122,7 @@ const PersonnelPage = () => {
         } else if (cardExists) {
           toast.error("Card number already exists.", { position: "top-right" });
         } else {
-          toast.success("Person registred successfully.", { position: "top-right" });
+          toast.success("Person registered successfully.", { position: "top-right" });
         }
       } else {
         toast.error((data as { error?: string }).error || "Request failed.", {

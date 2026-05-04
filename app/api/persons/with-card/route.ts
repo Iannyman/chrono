@@ -32,7 +32,15 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const data = await response.json();
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid response from upstream" },
+        { status: response.status }
+      );
+    }
     return NextResponse.json(data, { status: response.status });
   } catch {
     return NextResponse.json(
