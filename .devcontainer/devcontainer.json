@@ -3,7 +3,8 @@
   "name": "${localWorkspaceFolderBasename}",
   "forwardPorts": [4200],
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
   "mounts": [
     "source=${localWorkspaceFolderBasename}_node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
