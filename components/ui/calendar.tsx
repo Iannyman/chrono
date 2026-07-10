@@ -25,7 +25,6 @@ export default function Calendar() {
                 excludeDisabled
                 showOutsideDays
                 classNames={{ 
-                    weekdays: "text-[#fbfdc1] font-semibold",
                     day_selected: " hover:bg-[#fbfdc1] hover:text-gray-900",
                     day: "w-10 h-10 items-center justify-center rounded-xl hover:bg-[#fbfdc1] hover:text-gray-900",
                     day_disabled: "text-gray-400 opacity-50 cursor-not-allowed",
