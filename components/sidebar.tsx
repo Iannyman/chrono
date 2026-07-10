@@ -9,6 +9,7 @@ const menuItems = [
     { name: 'Home', icon: House, variant: "ghost", href: '/' },
     { name: 'Employees', icon: IdCard, variant: "ghost", href: '/employees' },
     { name: 'Enterprise', icon: List, variant: "ghost", href: '/enterprise' },
+    { name: 'Shifts', icon: Factory, variant: "ghost", href: '/shifts' },
     { name: 'Settings', icon: Settings, variant: "ghost", href: '/settings' },
     { name: 'Logout', icon: LogOut, variant: "destructive", href: '/login' },
 ] as const
