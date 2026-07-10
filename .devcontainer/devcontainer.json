@@ -1,0 +1,28 @@
+// See https://containers.dev/implementors/json_reference/ for configuration reference
+{
+  "name": "${localWorkspaceFolderBasename}",
+  "forwardPorts": [4200],
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}_node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ],
+  "runArgs": [
+    "--name=dev-${localWorkspaceFolderBasename}",
+    "--publish", "4200:3000",
+    "--env", "TZ=Europe/Bucharest",
+    "--env", "API_BASE_URL=http://172.23.5.77:5000"
+  ],
+  "postCreateCommand": "npm config set strict-ssl false",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
