@@ -55,12 +55,17 @@ export async function POST(request: Request) {
 
   const res = NextResponse.json({ user: data.user });
 
+  // Secure cookies are rejected by browsers over plain HTTP on non-localhost
+  // hosts (e.g. the container IP), which silently drops the auth token. Gate
+  // on the request scheme so HTTP works on the LAN and HTTPS stays secure.
+  const secure = request.url.startsWith("https://");
+
   res.cookies.set("token", data.token, {
     path: "/",
     maxAge,
     sameSite: "lax",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
   });
 
   res.cookies.set("user", JSON.stringify(data.user), {
@@ -68,7 +73,7 @@ export async function POST(request: Request) {
     maxAge,
     sameSite: "lax",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
   });
 
   return res;
