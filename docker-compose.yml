@@ -4,9 +4,14 @@ services:
       context: .
       target: production
     container_name: chrono_frontend
-    network_mode: bridge
     ports:
       - 4100:3000
     env_file:
       - .env
     restart: unless-stopped
+    networks:
+      - chrono
+
+networks:
+  chrono:
+    external: true
