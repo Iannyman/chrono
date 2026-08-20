@@ -3,7 +3,7 @@ import { House, IdCard, List, Settings, LogOut, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const menuItems = [
@@ -21,6 +21,7 @@ interface SidebarProps {
 
 const Sidebar = ({ user, isAdmin }: SidebarProps) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     try{
@@ -51,12 +52,20 @@ const Sidebar = ({ user, isAdmin }: SidebarProps) => {
             {menuItems.map((item) => {
               const Icon = item.icon;
 
+              const isActive = pathname === item.href ||
+              (item.href !== "/" &&
+                  pathname.startsWith(`${item.href}/`));
+
               return (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="flex h-14 w-full items-center rounded-xl px-4 text-sm font-medium hover:text-[#fbfdc1]"
-                  >
+                    className={`flex h-14 w-full items-center rounded-xl px-4 text-sm font-medium hover:text-[#fbfdc1] ${isActive
+                          ? "bg-[#fbfdc1] text-gray-900"
+                          : "text-white hover:bg-gray-700 hover:text-[#fbfdc1]"
+                      }
+                    `}>
+                
                     <span className="flex h-5 w-5 items-center justify-center shrink-0">
                       <Icon size={20} />
                     </span>

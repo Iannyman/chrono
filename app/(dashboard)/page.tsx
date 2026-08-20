@@ -36,7 +36,7 @@ interface RecentTimeEntry extends EmployeeSession {
   reporting_day: string;
 }
 
-const API_URL = "http://172.23.5.77:4000/sessions/detailed";
+const API_URL = "/api/sessions/detailed";
 
 
 const stats = [
@@ -68,10 +68,25 @@ export default function HomePage() {
         setIsLoading(true);
         setError("");
 
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 60);
+
+        const formatDate = (date: Date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+
+          return `${year}-${month}-${day}`;
+        };
+
         const apiResponse = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' , 'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJhcmJkIiwiZGlzcGxheU5hbWUiOiJCYXJiLCBEZW5pc2EiLCJpYXQiOjE3ODE2MTI5NTgsImV4cCI6MTc4MTY0ODk1OH0.ShB9P2mvbOhW9ccYU47f39yvdkvr1ezDJeEwBEmy4AY`},
-          body: JSON.stringify({"from": "2026-04-08","to": "2026-04-09"})
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: formatDate(yesterday),
+            to: formatDate(today),
+          }),
         });
 
         if (!apiResponse.ok) {
@@ -231,6 +246,7 @@ export default function HomePage() {
                         {new Date(entry.login_timestamp).toLocaleTimeString("en-US", {
                           hour: "2-digit",
                           minute: "2-digit",
+                          second: "2-digit",
                         })}
                       </td>
                     </tr>
