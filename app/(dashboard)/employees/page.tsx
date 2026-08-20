@@ -38,7 +38,7 @@ interface EmployeeApiResponse {
   data: EmployeeReportDay[];
 }
 
-const API_URL = "http://172.23.5.77:4000/sessions/detailed";
+const API_URL = "/api/sessions/detailed";
 
 const EmployeesPage = () => {
   const [personalIdInput, setPersonalIdInput] = useState("");
@@ -63,11 +63,26 @@ const EmployeesPage = () => {
         setLoading(true);
         setError("");
 
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 60);
+
+        const formatDate = (date: Date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+
+          return `${year}-${month}-${day}`;
+        };
+
         // const response = await fetch(API_URL);
         const apiResponse = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJhcmJkIiwiZGlzcGxheU5hbWUiOiJCYXJiLCBEZW5pc2EiLCJpYXQiOjE3ODE2MTI5NTgsImV4cCI6MTc4MTY0ODk1OH0.ShB9P2mvbOhW9ccYU47f39yvdkvr1ezDJeEwBEmy4AY` },
-          body: JSON.stringify({ "from": "2026-04-08", "to": "2026-04-09" })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: formatDate(yesterday),
+            to: formatDate(today),
+          }),
         });
 
         const result: EmployeeApiResponse = await apiResponse.json();
@@ -191,6 +206,8 @@ const EmployeesPage = () => {
     0
   );
 
+
+
   // Close calendar when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -210,7 +227,7 @@ const EmployeesPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 w-full">
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-900 w-full">
       {/* Header */}
       <div className="mx-8 mt-8 mb-2">
         <h1 className="text-2xl font-bold text-white">Employees</h1>
@@ -398,7 +415,7 @@ const EmployeesPage = () => {
       </form>
 
       {/* Employee Table */}
-      <div className="mx-8 my-4 bg-gray-800 rounded-xl shadow-md p-6 flex-1">
+      <div className="mx-8 my-4 bg-gray-800 rounded-xl shadow-md p-6 flex-1 min-h-0 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-white">
             Employee Records
@@ -414,7 +431,10 @@ const EmployeesPage = () => {
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        <div className=" flex-1 min-h-0 overflow-y-auto overflow-x-auto
+                        [scrollbar-width:thin]
+                        [scrollbar-color:#4b5563_#1f2937]">
+
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-700 text-gray-400">
@@ -461,11 +481,22 @@ const EmployeesPage = () => {
                     </td>
 
                     <td className="py-3 text-gray-400">
-                      {session.login_timestamp}
+                      {new Date(session.login_timestamp).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
                     </td>
 
+                    {/* verificare ca poate sa fie null */}
                     <td className="py-3 text-gray-400">
-                      {session.logout_timestamp}
+                      {session.logout_timestamp
+                        ? new Date(session.logout_timestamp).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })
+                        : "-"}
                     </td>
 
                     <td className="py-3 text-left text-white">
@@ -473,7 +504,13 @@ const EmployeesPage = () => {
                     </td>
 
                     <td className="py-3 text-left text-gray-300">
-                      {session.session_minutes}
+                      {session.logout_timestamp
+                        ? Math.round(
+                          (new Date(session.logout_timestamp).getTime() -
+                            new Date(session.login_timestamp).getTime()) /
+                          (1000 * 60)
+                        )
+                        : "-"}
                     </td>
 
                     <td className="py-3 text-gray-400">
