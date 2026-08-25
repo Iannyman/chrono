@@ -102,6 +102,7 @@ const EmployeesPage = () => {
     }
 
     fetchEmployees();
+    
   }, []);
 
   const formatDate = (date?: Date) => {
