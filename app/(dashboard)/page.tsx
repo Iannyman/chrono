@@ -36,7 +36,7 @@ interface RecentTimeEntry extends EmployeeSession {
   reporting_day: string;
 }
 
-const API_URL = "/api/sessions/detailed";
+const API_URL = "/api/sessions/live";
 
 
 const stats = [
@@ -68,25 +68,12 @@ export default function HomePage() {
         setIsLoading(true);
         setError("");
 
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 60);
-
-        const formatDate = (date: Date) => {
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, "0");
-          const day = String(date.getDate()).padStart(2, "0");
-
-          return `${year}-${month}-${day}`;
-        };
-
         const apiResponse = await fetch(API_URL, {
-          method: 'POST',
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: formatDate(yesterday),
-            to: formatDate(today),
-          }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
         });
 
         if (!apiResponse.ok) {
@@ -94,6 +81,7 @@ export default function HomePage() {
         }
 
         console.log("API response status:", apiResponse.status);
+
         const response: EmployeeApiResponse = await apiResponse.json();
 
         const entries: RecentTimeEntry[] = response.data
@@ -120,6 +108,7 @@ export default function HomePage() {
     };
 
     fetchRecentEntries();
+
   }, []);
 
   return (

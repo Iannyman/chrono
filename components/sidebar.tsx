@@ -36,12 +36,12 @@ const Sidebar = ({ user, isAdmin }: SidebarProps) => {
   return (
     <div className="flex">
       <div className="relative w-20 md:w-60 bg-gray-800 p-4 text-white">
-        <div className="flex justify-between items-center p-4">
+        <div className="w-fit mx-auto">
           <Image
-            className="w-48 h-auto"
-            src="/logo.png"
+            className="w-30 h-35"
+            src="/new-logo.png"
             alt="Logo"
-            width={192}
+            width={60}
             height={60}
             priority
           />
