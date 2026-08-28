@@ -7,6 +7,9 @@ import {
   FolderKanban,
   TrendingUp,
   CalendarDays,
+  ClockAlert,
+  DoorOpen,
+  UserRoundMinus,
 } from "lucide-react";
 
 interface EmployeeSession {
@@ -20,6 +23,7 @@ interface EmployeeSession {
   logout_timestamp: string | null;
   shift_name: string;
   session_minutes: number;
+  timeElapsed: string;
 }
 
 interface EmployeeReportDay {
@@ -39,13 +43,6 @@ interface RecentTimeEntry extends EmployeeSession {
 const API_URL = "/api/sessions/live";
 
 
-const stats = [
-  { title: "Total Hours This Week", value: "384h", change: "+12%", trend: "up" as const, icon: Clock },
-  { title: "Active Employees", value: "48", change: "+3", trend: "up" as const, icon: Users },
-  { title: "Active Projects", value: "12", change: "-1", trend: "down" as const, icon: FolderKanban },
-  { title: "Avg. Hours / Employee", value: "8.0h", change: "+0.5h", trend: "up" as const, icon: TrendingUp },
-];
-
 const projectBreakdown = [
   { name: "Assembly Line A", hours: 120, employees: 15, color: "bg-[#4682B4]" },
   { name: "Assembly Line B", hours: 96, employees: 12, color: "bg-[#5B9BD5]" },
@@ -61,6 +58,16 @@ export default function HomePage() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [activeEmployees, setActiveEmployees] = useState(0);
+  const [activeProjects, setActiveProjects] = useState(0);
+
+  const stats = [
+    { title: "Not Clocked In", value: "0", change: "+12%", trend: "up" as const, icon: ClockAlert },
+    { title: "Active Employees", value: activeEmployees.toString(), change: "+3", trend: "up" as const, icon: Users },
+    { title: "Active Projects", value: activeProjects.toString(), change: "-1", trend: "down" as const, icon: FolderKanban },
+    { title: "Early Departures Today", value: "1", change: "+0.5h", trend: "up" as const, icon: UserRoundMinus },
+  ];
 
   useEffect(() => {
     const fetchRecentEntries = async () => {
@@ -79,6 +86,7 @@ export default function HomePage() {
         if (!apiResponse.ok) {
           throw new Error("Failed to fetch employee entries");
         }
+
 
         console.log("API response status:", apiResponse.status);
 
@@ -99,6 +107,21 @@ export default function HomePage() {
           .slice(0, 10);
 
         setRecentTimeEntries(entries);
+
+        const activeCount = response.data.reduce(
+          (total, day) => total + day.sessions.length,
+          0
+        );
+
+        setActiveEmployees(activeCount);
+
+        const projectCount = response.data.reduce(
+          (total, day) => total + new Set(day.sessions.map((s) => s.line_id)).size,
+          0
+        );
+
+        setActiveProjects(projectCount);
+
       } catch (error) {
         console.error(error);
         setError("Could not load recent time entries.");
@@ -179,6 +202,7 @@ export default function HomePage() {
                   <th className="text-left py-3 font-medium">Project</th>
                   <th className="text-left py-3 font-medium">Date</th>
                   <th className="text-left py-3 font-medium">Check-in</th>
+                  <th className="text-left py-3 font-medium">Time Elapsed</th>
                   {/* <th className="text-right py-3 font-medium">Hours</th>
                   <th className="text-right py-3 font-medium">Status</th> */}
                 </tr>
@@ -238,6 +262,26 @@ export default function HomePage() {
                           second: "2-digit",
                         })}
                       </td>
+
+                      <td className="py-3 text-gray-400">
+                        {(() => {
+                          const checkIn = new Date(entry.login_timestamp);
+                          const now = new Date();
+
+                          const diff = now.getTime() - checkIn.getTime();
+                          const totalSeconds = Math.max(0, Math.floor(diff / 1000));
+
+                          const hours = Math.floor(totalSeconds / 3600);
+                          const minutes = Math.floor((totalSeconds % 3600) / 60);
+                          const seconds = totalSeconds % 60;
+
+                          return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+                            2,
+                            "0"
+                          )}:${String(seconds).padStart(2, "0")}`;
+                        })()}
+                      </td>
+
                     </tr>
                   ))}
               </tbody>
