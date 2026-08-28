@@ -58,6 +58,7 @@ export default function HomePage() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [projectBreakdown, setProjectBreakdown] = useState<LineBreakdown[]>([]);
 
   const [activeEmployees, setActiveEmployees] = useState(0);
   const [activeProjects, setActiveProjects] = useState(0);
@@ -73,14 +74,14 @@ export default function HomePage() {
     const fetchRecentEntries = async () => {
       try {
         setIsLoading(true);
-        setError("");
+        setError(""); //sterge mesaj de eroare anterior
 
         const apiResponse = await fetch(API_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({}),
+          body: JSON.stringify({}), //toate liniile
         });
 
         if (!apiResponse.ok) {
@@ -90,15 +91,16 @@ export default function HomePage() {
 
         console.log("API response status:", apiResponse.status);
 
-        const response: EmployeeApiResponse = await apiResponse.json();
+        // Toate sesiunile într-un singur array
+        const allEntries: RecentTimeEntry[] = response.data.flatMap((day) =>
+          day.sessions.map((session) => ({
+            reporting_day: day.reporting_day,
+            ...session,
+          }))
+        );
 
-        const entries: RecentTimeEntry[] = response.data
-          .flatMap((day) =>
-            day.sessions.map((session) => ({
-              reporting_day: day.reporting_day,
-              ...session,
-            }))
-          )
+        // ultimele 10 intrari
+        const recentEntries: RecentTimeEntry[] = allEntries
           .sort(
             (a, b) =>
               new Date(b.login_timestamp).getTime() -
@@ -292,40 +294,42 @@ export default function HomePage() {
         {/* Project Breakdown */}
         <div className="bg-gray-800 rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-white mb-4">
-            Hours by Project
+            Lines Breakdown
           </h2>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col ">
             {projectBreakdown.map((project) => (
-              <div key={project.name}>
-                <div className="flex items-center justify-between mb-1">
+              <div className="mt-4 pt-4 border-t border-gray-700" key={project.name}>
+                
+                <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-300">
                     {project.name}
                   </span>
-                  <span className="text-sm text-white font-medium">
+                  {/* <span className="text-sm text-white font-medium">
                     {project.hours}h
+                  </span> */}
+                
+                {/* <div className="w-full bg-gray-700 rounded-full h-2">
+                { <div
+                  className={`${project.color} h-2 rounded-full transition-all`}
+                  style={{
+                    width: `${(project.hours / 120) * 100}%`,
+                  }}
+                /> }
+                </div> */}
+                  <span className="text-xs ">
+                    {project.employees} employees
                   </span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div
-                    className={`${project.color} h-2 rounded-full transition-all`}
-                    style={{
-                      width: `${(project.hours / 120) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-xs text-gray-500">
-                  {project.employees} employees
-                </span>
               </div>
             ))}
           </div>
 
           <div className="mt-6 pt-4 border-t border-gray-700">
-            <div className="flex justify-between text-sm">
+            {/* <div className="flex justify-between text-sm">
               <span className="text-gray-400">Total logged</span>
               <span className="text-white font-semibold">384h</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
