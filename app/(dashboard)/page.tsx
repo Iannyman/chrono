@@ -42,17 +42,26 @@ const API_URL = "/api/sessions/live";
 const stats = [
   { title: "Total Hours This Week", value: "384h", change: "+12%", trend: "up" as const, icon: Clock },
   { title: "Active Employees", value: "48", change: "+3", trend: "up" as const, icon: Users },
-  { title: "Active Projects", value: "12", change: "-1", trend: "down" as const, icon: FolderKanban },
+  { title: "Active Lines", value: "12", change: "-1", trend: "down" as const, icon: FolderKanban },
   { title: "Avg. Hours / Employee", value: "8.0h", change: "+0.5h", trend: "up" as const, icon: TrendingUp },
 ];
 
-const projectBreakdown = [
-  { name: "Assembly Line A", hours: 120, employees: 15, color: "bg-[#4682B4]" },
-  { name: "Assembly Line B", hours: 96, employees: 12, color: "bg-[#5B9BD5]" },
-  { name: "Assembly Line C", hours: 72, employees: 8, color: "bg-[#6BAED6]" },
-  { name: "Assembly Line D", hours: 56, employees: 7, color: "bg-[#7EC8E3]" },
-  { name: "Assembly Line E", hours: 40, employees: 6, color: "bg-[#9DC8E3]" },
-];
+
+type LineBreakdown = {
+  lineId: number | string;
+  name: string;
+  employees: number;
+  // hours: number;
+  // color: string;
+};
+
+// const color = [
+//   "bg-[#4682B4]",
+//   "bg-[#5B9BD5]",
+//   "bg-[#6BAED6]",
+//   "bg-[#7EC8E3]",
+//   "bg-[#9DC8E3]",
+// ];
 
 
 export default function HomePage() {
@@ -61,36 +70,40 @@ export default function HomePage() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [projectBreakdown, setProjectBreakdown] = useState<LineBreakdown[]>([]);
 
   useEffect(() => {
     const fetchRecentEntries = async () => {
       try {
         setIsLoading(true);
-        setError("");
+        setError(""); //sterge mesaj de eroare anterior
 
         const apiResponse = await fetch(API_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({}),
+          body: JSON.stringify({}), //toate liniile
         });
 
         if (!apiResponse.ok) {
           throw new Error("Failed to fetch employee entries");
         }
 
-        console.log("API response status:", apiResponse.status);
-
         const response: EmployeeApiResponse = await apiResponse.json();
 
-        const entries: RecentTimeEntry[] = response.data
-          .flatMap((day) =>
-            day.sessions.map((session) => ({
-              reporting_day: day.reporting_day,
-              ...session,
-            }))
-          )
+        console.log("API response status:", apiResponse.status);
+
+        // Toate sesiunile într-un singur array
+        const allEntries: RecentTimeEntry[] = response.data.flatMap((day) =>
+          day.sessions.map((session) => ({
+            reporting_day: day.reporting_day,
+            ...session,
+          }))
+        );
+
+        // ultimele 10 intrari
+        const recentEntries: RecentTimeEntry[] = allEntries
           .sort(
             (a, b) =>
               new Date(b.login_timestamp).getTime() -
@@ -98,7 +111,66 @@ export default function HomePage() {
           )
           .slice(0, 10);
 
-        setRecentTimeEntries(entries);
+        setRecentTimeEntries(recentEntries);
+
+        const lines = new Map<
+          number | string,
+          {
+            name: string;
+            // totalMinutes: number;
+            employees: Set<string>;
+          }
+        >();
+
+        allEntries.forEach((session) => {
+          const lineId = session.line_id;
+
+          if (lineId == null) return;
+
+          // Modifică line_name dacă API-ul folosește alt câmp
+          const lineName =
+            session.line_name ?? `Line ${lineId}`;
+
+          const login = new Date(session.login_timestamp).getTime();
+
+          // Pentru sesiune încă activă calculăm până în momentul actual
+          // const logout = session.logout_timestamp
+          //   ? new Date(session.logout_timestamp).getTime()
+          //   : Date.now();
+
+          // const minutes = Math.max(
+          //   0,
+          //   (logout - login) / 1000 / 60
+          // );
+
+          // if (!lines.has(lineId)) {
+          //   lines.set(lineId, {
+          //     name: lineName,
+          //     totalMinutes: 0,
+          //     employees: new Set(),
+          //   });
+          // }
+
+          const line = lines.get(lineId)!;
+
+          // line.totalMinutes += minutes;
+
+          // Pune aici identificatorul real al angajatului din API
+          line.employees.add(String(session.person_id));
+        });
+
+        const breakdown: LineBreakdown[] = Array.from(lines.entries()).map(
+          ([lineId, line], index) => ({
+            lineId,
+            name: line.name,
+            // hours: Number((line.totalMinutes / 60).toFixed(1)),
+            employees: line.employees.size,
+            // color: color[index % color.length],
+          })
+        );
+
+        setProjectBreakdown(breakdown);
+
       } catch (error) {
         console.error(error);
         setError("Could not load recent time entries.");
@@ -248,40 +320,42 @@ export default function HomePage() {
         {/* Project Breakdown */}
         <div className="bg-gray-800 rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-white mb-4">
-            Hours by Project
+            Lines Breakdown
           </h2>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col ">
             {projectBreakdown.map((project) => (
-              <div key={project.name}>
-                <div className="flex items-center justify-between mb-1">
+              <div className="mt-4 pt-4 border-t border-gray-700" key={project.name}>
+                
+                <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-300">
                     {project.name}
                   </span>
-                  <span className="text-sm text-white font-medium">
+                  {/* <span className="text-sm text-white font-medium">
                     {project.hours}h
+                  </span> */}
+                
+                {/* <div className="w-full bg-gray-700 rounded-full h-2">
+                { <div
+                  className={`${project.color} h-2 rounded-full transition-all`}
+                  style={{
+                    width: `${(project.hours / 120) * 100}%`,
+                  }}
+                /> }
+                </div> */}
+                  <span className="text-xs ">
+                    {project.employees} employees
                   </span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div
-                    className={`${project.color} h-2 rounded-full transition-all`}
-                    style={{
-                      width: `${(project.hours / 120) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-xs text-gray-500">
-                  {project.employees} employees
-                </span>
               </div>
             ))}
           </div>
 
           <div className="mt-6 pt-4 border-t border-gray-700">
-            <div className="flex justify-between text-sm">
+            {/* <div className="flex justify-between text-sm">
               <span className="text-gray-400">Total logged</span>
               <span className="text-white font-semibold">384h</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -61,7 +61,7 @@ const Sidebar = ({ user, isAdmin }: SidebarProps) => {
                   <Link
                     href={item.href}
                     className={`flex h-14 w-full items-center rounded-xl px-4 text-sm font-medium hover:text-[#fbfdc1] ${isActive
-                          ? "bg-[#fbfdc1] text-gray-900"
+                          ? "bg-[#fbfdc1] text-gray-900 hover:text-gray-900"
                           : "text-white hover:bg-gray-700 hover:text-[#fbfdc1]"
                       }
                     `}>
