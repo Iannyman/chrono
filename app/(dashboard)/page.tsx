@@ -43,14 +43,20 @@ interface RecentTimeEntry extends EmployeeSession {
 const API_URL = "/api/sessions/live";
 
 
-const projectBreakdown = [
-  { name: "Assembly Line A", hours: 120, employees: 15, color: "bg-[#4682B4]" },
-  { name: "Assembly Line B", hours: 96, employees: 12, color: "bg-[#5B9BD5]" },
-  { name: "Assembly Line C", hours: 72, employees: 8, color: "bg-[#6BAED6]" },
-  { name: "Assembly Line D", hours: 56, employees: 7, color: "bg-[#7EC8E3]" },
-  { name: "Assembly Line E", hours: 40, employees: 6, color: "bg-[#9DC8E3]" },
-];
+// const projectBreakdown = [
+//   { name: "Assembly Line A", hours: 120, employees: 15, color: "bg-[#4682B4]" },
+//   { name: "Assembly Line B", hours: 96, employees: 12, color: "bg-[#5B9BD5]" },
+//   { name: "Assembly Line C", hours: 72, employees: 8, color: "bg-[#6BAED6]" },
+//   { name: "Assembly Line D", hours: 56, employees: 7, color: "bg-[#7EC8E3]" },
+//   { name: "Assembly Line E", hours: 40, employees: 6, color: "bg-[#9DC8E3]" },
+// ];
 
+type LineBreakdown = {
+  lineId: number | string;
+  name: string;
+  // hours: number;
+  employees: number;
+};
 
 export default function HomePage() {
   const [recentTimeEntries, setRecentTimeEntries] = useState<
@@ -71,68 +77,124 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
-    const fetchRecentEntries = async () => {
-      try {
-        setIsLoading(true);
-        setError(""); //sterge mesaj de eroare anterior
+    const fetchDashboardData = async () => {
+  try {
+    setIsLoading(true);
+    setError("");
 
-        const apiResponse = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({}), //toate liniile
-        });
+    const apiResponse = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}), // toate liniile
+    });
 
-        if (!apiResponse.ok) {
-          throw new Error("Failed to fetch employee entries");
-        }
+    if (!apiResponse.ok) {
+      throw new Error("Failed to fetch employee entries");
+    }
 
+    console.log("API response status:", apiResponse.status);
 
-        console.log("API response status:", apiResponse.status);
+    const response: EmployeeApiResponse = await apiResponse.json();
 
-        // Toate sesiunile într-un singur array
-        const allEntries: RecentTimeEntry[] = response.data.flatMap((day) =>
-          day.sessions.map((session) => ({
-            reporting_day: day.reporting_day,
-            ...session,
-          }))
-        );
+    // console.log("LIVE RESPONSE:", response);
 
-        // ultimele 10 intrari
-        const recentEntries: RecentTimeEntry[] = allEntries
-          .sort(
-            (a, b) =>
-              new Date(b.login_timestamp).getTime() -
-              new Date(a.login_timestamp).getTime()
-          )
-          .slice(0, 10);
+    // Toate sesiunile într-un singur array
+    const allEntries: RecentTimeEntry[] = response.data.flatMap((day) =>
+      day.sessions.map((session) => ({
+        reporting_day: day.reporting_day,
+        ...session,
+      }))
+    );
 
-        setRecentTimeEntries(entries);
+    // ULTIMELE 10 INTRĂRI
 
-        const activeCount = response.data.reduce(
-          (total, day) => total + day.sessions.length,
-          0
-        );
+    const recentEntries = [...allEntries]
+      .sort(
+        (a, b) =>
+          new Date(b.login_timestamp).getTime() -
+          new Date(a.login_timestamp).getTime()
+      )
+      .slice(0, 10);
 
-        setActiveEmployees(activeCount);
+    setRecentTimeEntries(recentEntries);
 
-        const projectCount = response.data.reduce(
-          (total, day) => total + new Set(day.sessions.map((s) => s.line_id)).size,
-          0
-        );
+    const activeCount = response.data.reduce(
+        (total, day) => total + day.sessions.length,
+        0
+      );
 
-        setActiveProjects(projectCount);
+      setActiveEmployees(activeCount);
 
-      } catch (error) {
-        console.error(error);
-        setError("Could not load recent time entries.");
-      } finally {
-        setIsLoading(false);
+    // GROUP BY LINE
+
+    const lines = new Map<
+      number | string,
+      {
+        name: string;
+        // totalMinutes: number;
+        employees: Set<string>;
       }
-    };
+    >();
 
-    fetchRecentEntries();
+    allEntries.forEach((session) => {
+      const lineId = session.line_id;
+
+      if (lineId == null) return;
+
+
+      const lineName = session.line_name || `Line ${lineId}`;
+
+      const login = new Date(session.login_timestamp).getTime();
+
+      // Pentru sesiune inca activa 
+      // const logout = session.logout_timestamp
+      //   ? new Date(session.logout_timestamp).getTime()
+      //   : Date.now();
+
+      // const minutes = Math.max(
+      //   0,
+      //   (logout - login) / 1000 / 60
+      // );
+
+      if (!lines.has(lineId)) {
+        lines.set(lineId, {
+          name: lineName,
+          // totalMinutes: 0,
+          employees: new Set(),
+        });
+      }
+
+      const line = lines.get(lineId)!;
+
+      // line.totalMinutes += minutes;
+
+      line.employees.add(String(session.person_id));
+    });
+
+    // Set the number of active projects based on the number of unique lines
+    setActiveProjects(lines.size);
+
+    const breakdown: LineBreakdown[] = Array.from(lines.entries()).map(
+      ([lineId, line]) => ({
+        lineId,
+        name: line.name,
+        // hours: Number((line.totalMinutes / 60).toFixed(1)),
+        employees: line.employees.size,
+      })
+    );
+
+    setProjectBreakdown(breakdown);
+  } catch (error) {
+    console.error(error);
+    setError("Could not load dashboard data.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+fetchDashboardData();
 
   }, []);
 
