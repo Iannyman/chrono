@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { DayPicker, DateRange } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import { set } from "date-fns";
 
 // JSON shape from API response
 interface EmployeeSession {
@@ -26,6 +27,7 @@ interface EmployeeSession {
   logout_timestamp: string | null;
   shift_name: string;
   session_minutes: number;
+  isLive?: boolean; // Optional property to indicate if the session is live
 }
 
 interface EmployeeReportDay {
@@ -39,6 +41,7 @@ interface EmployeeApiResponse {
 }
 
 const API_URL = "/api/sessions/detailed";
+const LIVE_API_URL = "/api/sessions/live";
 
 const EmployeesPage = () => {
   const [personalIdInput, setPersonalIdInput] = useState("");
@@ -56,6 +59,8 @@ const EmployeesPage = () => {
   const [employeeRecords, setEmployeeRecords] = useState<EmployeeReportDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [liveSession, setLiveSession] = useState<EmployeeSession[]>([]);
 
   useEffect(() => {
     async function fetchEmployees() {
@@ -76,21 +81,37 @@ const EmployeesPage = () => {
         };
 
         // const response = await fetch(API_URL);
-        const apiResponse = await fetch(API_URL, {
-          method: 'POST',
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: formatDate(yesterday),
-            to: formatDate(today),
+        const [apiResponse, liveApiResponse] = await Promise.all([
+          fetch(API_URL, {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: formatDate(yesterday),
+              to: formatDate(today),
+            }),
           }),
-        });
+          fetch(LIVE_API_URL, {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          }),
+        ]);
 
         const result: EmployeeApiResponse = await apiResponse.json();
+
+        const liveResult: EmployeeApiResponse = await liveApiResponse.json();
 
         if (result.success === 1 && Array.isArray(result.data)) {
           setEmployeeRecords(result.data);
         } else {
           setEmployeeRecords([]);
+          setError("Invalid employee data received.");
+        }
+
+        if (liveResult.success === 1 && Array.isArray(liveResult.data)) {
+          setLiveSession(liveResult.data.flatMap((day) => day.sessions));
+        } else {
+          setLiveSession([]);
           setError("Invalid employee data received.");
         }
       } catch (error) {
@@ -102,7 +123,7 @@ const EmployeesPage = () => {
     }
 
     fetchEmployees();
-    
+
   }, []);
 
   const formatDate = (date?: Date) => {
@@ -144,13 +165,24 @@ const EmployeesPage = () => {
   sixMonthsAgo.setHours(0, 0, 0, 0);
 
   const employeeRows = useMemo(() => {
-    return employeeRecords.flatMap((day) =>
+    const employeeRows = employeeRecords.flatMap((day) =>
       day.sessions.map((session) => ({
         day,
         session,
       }))
     );
-  }, [employeeRecords]);
+    const liveRows = liveSession.flatMap((session) => ({
+      day: {
+        reporting_day: session.login_timestamp.split("T")[0],
+        sessions: [],
+      },
+      session: {
+        ...session,
+        isLive: true,
+      },
+    })); //isLive should be inside session, not outside
+    return [...liveRows, ...employeeRows];
+  }, [employeeRecords, liveSession]);
 
   const productionLines = useMemo(() => {
     const lines = employeeRows
@@ -199,7 +231,7 @@ const EmployeesPage = () => {
   ).size;
 
   const activeSessions = employeeRows.filter(
-    ({ session }) => !session.logout_timestamp
+    ({ session }) => session.isLive && !session.logout_timestamp
   ).length;
 
   const totalMinutesLogged = employeeRows.reduce(
@@ -511,7 +543,10 @@ const EmployeesPage = () => {
                             new Date(session.login_timestamp).getTime()) /
                           (1000 * 60)
                         )
-                        : "-"}
+                        : Math.round(
+                          (Date.now() - new Date(session.login_timestamp).getTime()) /
+                          (1000 * 60)
+                        )}
                     </td>
 
                     <td className="py-3 text-gray-400">
@@ -520,7 +555,7 @@ const EmployeesPage = () => {
 
                     <td className="py-3 text-left">
                       <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
-                        {session.shift_name}
+                      {session.isLive ? "Live" : session.shift_name}
                       </span>
                     </td>
                   </tr>
