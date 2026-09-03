@@ -167,7 +167,7 @@ const EmployeesPage = () => {
   });
 
   const totalEmployees = new Set(
-    filteredEmployeeRows.map(({session}) => session.person_id)
+    filteredEmployeeRows.map(({ session }) => session.person_id)
   ).size;
 
   const totalSession = filteredEmployeeRows.length;
@@ -177,7 +177,8 @@ const EmployeesPage = () => {
     0
   );
 
-  const averageSession = totalSession > 0 ? Math.round(totalMinutesLogged / totalSession) : 0;
+
+  const averageSession = totalSession > 0 ? Math.round(totalMinutesLogged / totalSession / 60).toFixed(2) : "0.00";
 
   const stats = [
     {
@@ -268,14 +269,9 @@ const EmployeesPage = () => {
 
 
 
-
-
   // const activeSessions = employeeRows.filter(
   //   ({ session }) => session.isLive && !session.logout_timestamp
   // ).length;
-
-
-
 
 
   // Close calendar when clicking outside
@@ -533,7 +529,7 @@ const EmployeesPage = () => {
                 <th className="text-left py-3 font-medium">Date</th>
                 <th className="text-left py-3 font-medium">Time In</th>
                 <th className="text-left py-3 font-medium">Time Out</th>
-                <th className="text-left py-3 font-medium">Hrs/Week</th>
+                {/* <th className="text-left py-3 font-medium">Hrs/Week</th> */}
                 <th className="text-left py-3 font-medium">Working Hours</th>
                 <th className="text-left py-3 font-medium">Working Place</th>
                 <th className="text-left py-3 font-medium">Status</th>
@@ -589,21 +585,26 @@ const EmployeesPage = () => {
                         : "-"}
                     </td>
 
-                    <td className="py-3 text-left text-white">
+                    {/* <td className="py-3 text-left text-white">
                       {session.session_minutes}
-                    </td>
+                    </td> */}
 
                     <td className="py-3 text-left text-gray-300">
                       {session.logout_timestamp
-                        ? Math.round(
-                          (new Date(session.logout_timestamp).getTime() -
-                            new Date(session.login_timestamp).getTime()) /
-                          (1000 * 60)
-                        )
-                        : Math.round(
+                        ? (
+                          (
+                            new Date(session.logout_timestamp).getTime() -
+                            new Date(session.login_timestamp).getTime()
+                          ) /
+                          (1000 * 60 * 60)
+                        ).toFixed(2)
+                        : (
                           (Date.now() - new Date(session.login_timestamp).getTime()) /
-                          (1000 * 60)
-                        )}
+                          (1000 * 60 * 60)
+                        ).toFixed(2)
+                      } h 
+
+                      
                     </td>
 
                     <td className="py-3 text-gray-400">
