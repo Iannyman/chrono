@@ -78,7 +78,7 @@ export default function HomePage() {
     { title: "Active Lines", value: activeProjects.toString(), change: "-1", trend: "down" as const, icon: FolderKanban },
     { title: "Active Employees", value: activeEmployees.toString(), change: "+3", trend: "up" as const, icon: Users },
     { title: "Double Clocked In", value: activeEmployees.toString(), change: "+3", trend: "up" as const, icon: ClockPlus },
-    { title: "Not Clocked In", value: "0", change: "+12%", trend: "up" as const, icon: ClockAlert },
+    { title: "Missing Clocked In", value: "0", change: "+12%", trend: "up" as const, icon: ClockAlert },
     { title: "Early Departures Today", value: "1", change: "+0.5h", trend: "up" as const, icon: UserRoundMinus },
   ];
 
