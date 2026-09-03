@@ -40,10 +40,14 @@ interface EmployeeApiResponse {
   data: EmployeeReportDay[];
 }
 
+
 const API_URL = "/api/sessions/detailed";
 const LIVE_API_URL = "/api/sessions/live";
 
+
+
 const EmployeesPage = () => {
+
   const [personalIdInput, setPersonalIdInput] = useState("");
   const [selectedLine, setSelectedLine] = useState("All Lines");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -61,70 +65,6 @@ const EmployeesPage = () => {
   const [error, setError] = useState("");
 
   const [liveSession, setLiveSession] = useState<EmployeeSession[]>([]);
-
-  useEffect(() => {
-    async function fetchEmployees() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 60);
-
-        const formatDate = (date: Date) => {
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, "0");
-          const day = String(date.getDate()).padStart(2, "0");
-
-          return `${year}-${month}-${day}`;
-        };
-
-        // const response = await fetch(API_URL);
-        const [apiResponse, liveApiResponse] = await Promise.all([
-          fetch(API_URL, {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: formatDate(yesterday),
-              to: formatDate(today),
-            }),
-          }),
-          fetch(LIVE_API_URL, {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({}),
-          }),
-        ]);
-
-        const result: EmployeeApiResponse = await apiResponse.json();
-
-        const liveResult: EmployeeApiResponse = await liveApiResponse.json();
-
-        if (result.success === 1 && Array.isArray(result.data)) {
-          setEmployeeRecords(result.data);
-        } else {
-          setEmployeeRecords([]);
-          setError("Invalid employee data received.");
-        }
-
-        if (liveResult.success === 1 && Array.isArray(liveResult.data)) {
-          setLiveSession(liveResult.data.flatMap((day) => day.sessions));
-        } else {
-          setLiveSession([]);
-          setError("Invalid employee data received.");
-        }
-      } catch (error) {
-        console.error("Error fetching employee data:", error);
-        setError("Error fetching employee data.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchEmployees();
-
-  }, []);
 
   const formatDate = (date?: Date) => {
     if (!date) return "";
@@ -227,17 +167,114 @@ const EmployeesPage = () => {
   });
 
   const totalEmployees = new Set(
-    employeeRows.map(({ session }) => session.person_id)
+    filteredEmployeeRows.map(({session}) => session.person_id)
   ).size;
 
-  const activeSessions = employeeRows.filter(
-    ({ session }) => session.isLive && !session.logout_timestamp
-  ).length;
+  const totalSession = filteredEmployeeRows.length;
 
-  const totalMinutesLogged = employeeRows.reduce(
+  const totalMinutesLogged = filteredEmployeeRows.reduce(
     (sum, { session }) => sum + Number(session.session_minutes || 0),
     0
   );
+
+  const averageSession = totalSession > 0 ? Math.round(totalMinutesLogged / totalSession) : 0;
+
+  const stats = [
+    {
+      title: "Employees Shown",
+      value: totalEmployees,
+      icon: Users,
+      iconColor: "text-gray-400",
+    },
+    {
+      title: "Sessions Found",
+      value: totalSession,
+      icon: UserCheck,
+      iconColor: "text-emerald-400",
+    },
+    {
+      title: "Average Session",
+      value: averageSession,
+      icon: Clock,
+      iconColor: "text-[#4682B4]",
+    },
+  ];
+
+
+
+  useEffect(() => {
+    async function fetchEmployees() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 60);
+
+        const formatDate = (date: Date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+
+          return `${year}-${month}-${day}`;
+        };
+
+        // const response = await fetch(API_URL);
+        const [apiResponse, liveApiResponse] = await Promise.all([
+          fetch(API_URL, {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: formatDate(yesterday),
+              to: formatDate(today),
+            }),
+          }),
+          fetch(LIVE_API_URL, {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          }),
+        ]);
+
+        const result: EmployeeApiResponse = await apiResponse.json();
+
+        const liveResult: EmployeeApiResponse = await liveApiResponse.json();
+
+        if (result.success === 1 && Array.isArray(result.data)) {
+          setEmployeeRecords(result.data);
+        } else {
+          setEmployeeRecords([]);
+          setError("Invalid employee data received.");
+        }
+
+        if (liveResult.success === 1 && Array.isArray(liveResult.data)) {
+          setLiveSession(liveResult.data.flatMap((day) => day.sessions));
+        } else {
+          setLiveSession([]);
+          setError("Invalid employee data received.");
+        }
+      } catch (error) {
+        console.error("Error fetching employee data:", error);
+        setError("Error fetching employee data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchEmployees();
+
+  }, []);
+
+
+
+
+
+  // const activeSessions = employeeRows.filter(
+  //   ({ session }) => session.isLive && !session.logout_timestamp
+  // ).length;
+
+
 
 
 
@@ -271,12 +308,32 @@ const EmployeesPage = () => {
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mx-8 my-4">
-        <div className="bg-gray-800 rounded-xl shadow-md p-6 flex items-center gap-4">
+
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={stat.title}
+              className="bg-gray-800 rounded-xl shadow-md p-6 flex items-center gap-4"
+            >
+
+              <div className={`p-3 bg-gray-700 rounded-lg ${stat.icon}`}>
+                <Icon className={`h-6 w-6 ${stat.iconColor}`} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">{stat.title}</p>
+                <p className="text-2xl font-bold text-white">{stat.value}</p>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* <div className="bg-gray-800 rounded-xl shadow-md p-6 flex items-center gap-4">
           <div className="p-3 bg-gray-700 rounded-lg">
             <Users className="h-6 w-6 text-gray-400" />
           </div>
           <div>
-            <p className="text-sm text-gray-400">Total Employees</p>
+            <p className="text-sm text-gray-400">Employees Shown</p>
             <p className="text-2xl font-bold text-white">{totalEmployees}</p>
           </div>
         </div>
@@ -286,7 +343,7 @@ const EmployeesPage = () => {
             <UserCheck className="h-6 w-6 text-emerald-400" />
           </div>
           <div>
-            <p className="text-sm text-gray-400">Active Sessions</p>
+            <p className="text-sm text-gray-400">Sessions Found</p>
             <p className="text-2xl font-bold text-white">{activeSessions}</p>
           </div>
         </div>
@@ -296,12 +353,12 @@ const EmployeesPage = () => {
             <Clock className="h-6 w-6 text-[#4682B4]" />
           </div>
           <div>
-            <p className="text-sm text-gray-400">Total Minutes Logged</p>
+            <p className="text-sm text-gray-400">Average Session</p>
             <p className="text-2xl font-bold text-white">
               {totalMinutesLogged}
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Filters */}
@@ -555,7 +612,7 @@ const EmployeesPage = () => {
 
                     <td className="py-3 text-left">
                       <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
-                      {session.isLive ? "Live" : session.shift_name}
+                        {session.isLive ? "Live" : session.shift_name}
                       </span>
                     </td>
                   </tr>
