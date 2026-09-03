@@ -10,6 +10,11 @@ import {
   ClockAlert,
   DoorOpen,
   UserRoundMinus,
+  Clock10Icon,
+  Clock2,
+  ClockArrowDown,
+  ClockFadingIcon,
+  ClockPlus,
 } from "lucide-react";
 
 interface EmployeeSession {
@@ -70,9 +75,10 @@ export default function HomePage() {
   const [activeProjects, setActiveProjects] = useState(0);
 
   const stats = [
-    { title: "Not Clocked In", value: "0", change: "+12%", trend: "up" as const, icon: ClockAlert },
+    { title: "Active Lines", value: activeProjects.toString(), change: "-1", trend: "down" as const, icon: FolderKanban },
     { title: "Active Employees", value: activeEmployees.toString(), change: "+3", trend: "up" as const, icon: Users },
-    { title: "Active Projects", value: activeProjects.toString(), change: "-1", trend: "down" as const, icon: FolderKanban },
+    { title: "Double Clocked In", value: activeEmployees.toString(), change: "+3", trend: "up" as const, icon: ClockPlus },
+    { title: "Not Clocked In", value: "0", change: "+12%", trend: "up" as const, icon: ClockAlert },
     { title: "Early Departures Today", value: "1", change: "+0.5h", trend: "up" as const, icon: UserRoundMinus },
   ];
 
@@ -209,7 +215,7 @@ fetchDashboardData();
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mx-8 my-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mx-8 my-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
