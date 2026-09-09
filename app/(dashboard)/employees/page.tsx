@@ -104,9 +104,11 @@ const EmployeesPage = () => {
   sixMonthsAgo.setMonth(today.getMonth() - 6);
   sixMonthsAgo.setHours(0, 0, 0, 0);
 
+
+
   const employeeRows = useMemo(() => {
     const employeeRows = employeeRecords.flatMap((day) =>
-      day.sessions.map((session) => ({
+      (day.sessions ?? []).map((session) => ({
         day,
         session,
       }))
@@ -123,6 +125,8 @@ const EmployeesPage = () => {
     })); //isLive should be inside session, not outside
     return [...liveRows, ...employeeRows];
   }, [employeeRecords, liveSession]);
+
+  // console.log("employeeRecords:", employeeRecords);
 
   const productionLines = useMemo(() => {
     const lines = employeeRows
@@ -202,7 +206,6 @@ const EmployeesPage = () => {
   ];
 
 
-
   useEffect(() => {
     async function fetchEmployees() {
       try {
@@ -240,7 +243,14 @@ const EmployeesPage = () => {
 
         const result: EmployeeApiResponse = await apiResponse.json();
 
+        console.log("HISTORICAL RESULT:", result);
+        console.log("HISTORICAL SUCCESS:", result.success);
+        console.log("HISTORICAL DATA:", result.data);
+        console.log("FIRST HISTORICAL ITEM:", result.data[0]);
+
         const liveResult: EmployeeApiResponse = await liveApiResponse.json();
+
+        console.log("LIVE RESULT:", liveResult);
 
         if (result.success === 1 && Array.isArray(result.data)) {
           setEmployeeRecords(result.data);
@@ -602,9 +612,9 @@ const EmployeesPage = () => {
                           (Date.now() - new Date(session.login_timestamp).getTime()) /
                           (1000 * 60 * 60)
                         ).toFixed(2)
-                      } h 
+                      } h
 
-                      
+
                     </td>
 
                     <td className="py-3 text-gray-400">

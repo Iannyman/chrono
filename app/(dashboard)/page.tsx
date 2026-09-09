@@ -73,11 +73,12 @@ export default function HomePage() {
 
   const [activeEmployees, setActiveEmployees] = useState(0);
   const [activeProjects, setActiveProjects] = useState(0);
+  const [doubleClockedInCount, setDoubleClockedInCount] = useState(0);
 
   const stats = [
     { title: "Active Lines", value: activeProjects.toString(), change: "-1", trend: "down" as const, icon: FolderKanban },
     { title: "Active Employees", value: activeEmployees.toString(), change: "+3", trend: "up" as const, icon: Users },
-    { title: "Double Clocked In", value: activeEmployees.toString(), change: "+3", trend: "up" as const, icon: ClockPlus },
+    { title: "Double Clocked In", value: doubleClockedInCount.toString(), change: "+3", trend: "up" as const, icon: ClockPlus },
     { title: "Missing Clocked In", value: "0", change: "+12%", trend: "up" as const, icon: ClockAlert },
     { title: "Early Departures Today", value: "1", change: "+0.5h", trend: "up" as const, icon: UserRoundMinus },
   ];
@@ -182,6 +183,7 @@ export default function HomePage() {
     // Set the number of active projects based on the number of unique lines
     setActiveProjects(lines.size);
 
+
     const breakdown: LineBreakdown[] = Array.from(lines.entries()).map(
       ([lineId, line]) => ({
         lineId,
@@ -192,6 +194,20 @@ export default function HomePage() {
     );
 
     setProjectBreakdown(breakdown);
+
+    const openSessions = allEntries.filter((session) => session.logout_timestamp === null);
+
+    const sessionsByPerson = new Map<string, number>();
+
+    openSessions.forEach((session) => {
+      const personId = String(session.person_id);
+
+      sessionsByPerson.set(personId, (sessionsByPerson.get(personId) || 0) + 1); //cauta daca exista deja, daca nu pune 0 si adauga 1
+    });
+
+    const doubleClockedInCount = Array.from(sessionsByPerson.values()).filter(count => count > 1).length;
+    setDoubleClockedInCount(doubleClockedInCount);
+
   } catch (error) {
     console.error(error);
     setError("Could not load dashboard data.");
